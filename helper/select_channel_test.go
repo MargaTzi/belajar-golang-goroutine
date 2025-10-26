@@ -35,3 +35,36 @@ func TestSelectChannel(t *testing.T) {
 	}
 	}
 }
+
+//deselect
+func TestDeselectChannel(t *testing.T) {
+	kopet1 := make(chan string)
+	kopet2 := make(chan string)
+
+	go func ()  {
+		time.Sleep(1 * time.Second)
+		kopet1 <- ("Data dari kopet1")
+	}()
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		kopet2 <- ("Data dari kopet2")
+	}()
+
+	counter := 0
+	for{
+		select{
+		case data := <-kopet1:
+			fmt.Println("Data Dari kopet1", data)
+			counter++
+		case data := <-kopet2:
+			fmt.Println("Data dari kopet2", data)
+			counter++
+		default:
+			fmt.Println("Menunggu kopet")
+		}
+		if counter == 2{
+			break
+		}
+	}
+}

@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 )
@@ -80,4 +81,36 @@ func TestRaceCondition(t *testing.T) {
 	}
 	time.Sleep(2 * time.Second)
 	fmt.Println("Count : ", x)
+}
+
+func TestMutex(t *testing.T){
+	var x = 0
+	var mutex sync.Mutex
+	for i := 0; i <= 1000; i++{
+		go func() {
+			for j := 1; j <= 100; j++{
+				mutex.Lock()
+				x = x + 1
+				mutex.Unlock()
+			}
+		}()
+	}
+	time.Sleep(5 * time.Second)
+	fmt.Println("Count : ", x)
+}
+
+func TestReadWriteMutex(t *testing.T) {
+	account := BankAccount{}
+
+	for i :=0; i<100; i++{
+		go func() {
+			for j :=1; j< 100; j++{
+				account.addBalance(1)
+				fmt.Println(account.getBalance())
+			}
+		}()
+	}
+
+	time.Sleep(5 * time.Second)
+	fmt.Println("Final Balance : ", account.getBalance())
 }

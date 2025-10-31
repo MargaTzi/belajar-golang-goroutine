@@ -114,3 +114,69 @@ func TestReadWriteMutex(t *testing.T) {
 	time.Sleep(5 * time.Second)
 	fmt.Println("Final Balance : ", account.getBalance())
 }
+
+func TestDeadLock(t *testing.T) {
+	user1 := UserBalance{
+		Name: "Dito",
+	}
+	user2 := UserBalance{
+		Name: "Wahyu",
+	}
+
+	go Transfer(&user1, &user2, 1000)
+	go Transfer(&user2, &user1, 1000)
+
+	time.Sleep(5 * time.Second)
+}
+
+func TestWaitGroup(t *testing.T){
+	group := &sync.WaitGroup{}
+
+	for i := 0; i < 5; i++{
+		go RunAsynchronous(group)
+	}
+
+	group.Wait()
+	fmt.Println("Selesai")
+}
+
+func TestPool(t *testing.T){
+	var pool = sync.Pool{
+		New: func() interface{} {
+			return "Default"
+		},
+	}
+		
+	
+	pool.Put("Cario")
+	pool.Put("Mada")
+	pool.Put("Ardisto")
+
+	for i := 0; i<10; i++{
+		go func() {
+			data := pool.Get()
+			fmt.Println(data)
+			pool.Put(data)
+		}()
+	}
+
+	time.Sleep(3 * time.Second)
+}
+
+func TestMap(t *testing.T){
+	var data sync.Map
+	var Addmap = func (value int)  {
+		data.Store(value, value)
+	}
+
+	for i := 0; i < 100; i++{
+		go Addmap(i)
+	}
+
+	time.Sleep(3 * time.Second)
+
+	data.Range(func(key, value interface{}) bool {
+		fmt.Println(key, ":", value)
+		return true
+	})
+}
